@@ -1,7 +1,6 @@
 ---
 title: "Mini_project_3 Wetlands data analysis"
-output: html_document
-
+output: pdf_document
 ---
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
@@ -12,15 +11,24 @@ When you click the **Knit** button a document will be generated that includes bo
 library(igraph)
 library(dplyr)
 library(networkD3)
+library(network)
+library(ggplot2)
 setwd("/Users/Yanish/Documents/Fall_2015/Integ_475/mini_project_2/Integ475Project")
 
-WN <- read.graph("networks/net.graphml", format = "graphml" )
+network <- read.graph("networks/net.graphml", format = "graphml" )
+data_wetlands <- read.csv("data/dat.csv")
 
+data <- select(data_wetlands, AF, SO, DT, PU, PI, PY, WC, SC, CL, SP, numAuthors)
 
+glimpse(data)
+glimpse(data_wetlands)
+View(data_wetlands)
 
+plot (network)
 
-
-
+```
+##Some text here just to make it seem like there will be text
+```{r}
 
 ```
 

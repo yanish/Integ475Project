@@ -1,0 +1,152 @@
+---
+title: "Wetlands data analysis"
+author: Megan Wylie, Prianka Siva, Ishani Kumar, Yanish Jutton
+output: pdf
+---
+#Part 1
+
+In this portion we scraped data from the web of science website. We decided that it would be interesting to look at connections in the journal of Wetlands and environmental pollution. We downloaded the data into text files from the Web of Science and then used Python and the metaknowledge package in order to turn it into 
+
+```{Python}
+import metaknowledge as mk
+import networkx as Nx
+import os
+os.chdir("/Users/Yanish/Documents/Fall_2015/Integ_475/mini_project_2/Integ475Project")
+
+RC = mk.RecordCollection ("data/")
+coAuth = RC.coAuthNetwork()
+Net = RC.coCiteNetwork()
+Dat = RC.writeCSV(fname = "data/dat.csv")
+
+Net=mk.drop_edges(Net, minWeight=3)
+Nx.write_graphml(Net, "networks/net.graphml2")
+```
+#Part 2
+
+```{r}
+library(igraph)
+library(dplyr)
+library(networkD3)
+library(network)
+library(ggplot2)
+library ("ndtv")
+library(scatterplot3d)
+
+setwd("/Users/Yanish/Documents/Fall_2015/Integ_475/mini_project_2/Integ475Project")
+
+
+dat <- read.csv("data/dat.csv")
+CC <- read.graph("networks/net.graphml", format = "graphml")
+network <- read.graph("networks/net.graphml", format = "graphml" )
+
+clust <- clusters(CC)
+CC <- induced.subgraph(CC, which(clust$membership == which.max(clust$csize)))
+summary(CC)
+```
+
+This part rendered the data into a dynamic network. We first created a static network with 25 vertices. By creating active edges, we were able to convert this static network to a dynamic one. To test the network, we viewed it time 1. We also added labels onto the network. Afterwards, using render.d3movie code, we made this dynamic network into a network movie. 
+
+We experimented with different illustrations of this dynamic network. Using filmstrip I was able to display the networks at different times all at once. Then, using the timePrism function, I graphed the dyanmic network with time on the y-axis. 
+
+```{r}
+
+CC <- network.initialize(10)
+
+add.edges.active(CC,tail=1:9,head=c(2:9,1),onset=1:9, terminus=11)
+add.edges.active(CC,tail=10,head=c(1:9),onset=10, terminus=12)
+
+class(CC)
+
+print(CC)
+
+as.data.frame(CC)
+
+CC
+
+plot(CC)
+
+plot(network.extract(CC,at=1))
+
+elabels<-lapply(get.edge.activity(CC),
+                function(spl){
+                  paste("(",spl[,1],"-",spl[,2],")",sep='')
+                })
+
+plot(CC,displaylabels=TRUE,edge.label=elabels,
+     edge.label.col='blue') 
+
+render.d3movie(CC, displaylabels=TRUE)
+
+filmstrip(CC,displaylabels=FALSE)
+
+compute.animation(CC)
+
+timePrism(CC,at=c(1,10,20),
+          displaylabels=TRUE,planes = TRUE,
+          label.cex=0.5)
+
+timeline(CC)
+
+```
+
+
+```{r}
+CC <- network.initialize(500)
+msmAt50<-network.extract(CC,at=50)
+network.size(msmAt50)
+plot(msmAt50,coord=network.layout.animate.MDSJ(msmAt50),vertex.cex=0.5)
+```
+
+#Part 3
+
+-----------------------
+##Plots
+-----------------------
+
+The plots below analyze the number of times an author has been cited and the number of citation authors used in their paper. To do this I narrowed down the data to six columns: Publication Names, Number of References, Total Citations, Priciple Author, and Publication Year. I first looked at the change in total citation counts over time. Citations are increasing, so it seems as though wetland research is expanding. Next I made a histogram of the number of references each author used. The authors tend to stay at around 25-75 citations per paper. 
+
+Next to find see the pattern between Number of References and Total Citations while accounting for the priciple authors. Many of the authors stay under 100 for both factors, therefore their was a large data cluster. However, there were a few dots with very large numbers, including some up to around 250 citations and references. 
+
+It appeared that Lawrence and Oxford has the highest projected increase, or most closely positive linear correlation. Therefore I isolated the data and mapped only Lawrence and Oxford.
+
+```{r}
+head(dat)
+View(dat)
+summary(dat)
+
+Wetlands <- select(dat, SO, NR, TC, PI, PY)
+
+ggplot(Wetlands, aes(PY)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+ggplot(Wetlands, aes(TC)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+ggplot(Wetlands, aes(NR)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+ggplot(Wetlands, aes(NR, TC, color=PI)) +
+  geom_point(size = 3) + geom_smooth() + theme_minimal()
+
+Wetlands2<- filter(Wetlands, PI == "LAWRENCE"|PI == "OXFORD")
+
+ggplot(Wetlands2, aes(NR, TC, color=PI)) +
+  geom_point(size = 3) + geom_smooth() + theme_minimal()
+
+ggplot(Wetlands2, aes(NR, count),count) +
+  geom_bar(stat="bin", position = "identity") + theme_minimal()
+
+```
+
+---------------------------------
+Networks on Lawrence and Oxford
+---------------------------------
+Next I wanted to look at the networks of Oxford and Lawrence further, however I was unable to isolate just the nodes associated with each factor. Therefore the networks of Lawrence and Oxford on wetlands will forever remain a mystery. :(
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+#plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
