@@ -3,8 +3,76 @@ title: "Untitled"
 output: html_document
 ---
 
+install.packages("igraph")
+install.packages("dplyr")
+install.packages("ndtv")
+install.packages("scatterplot3d")
+
 ```{r setup, include=FALSE}
 library(igraph)
 library(dplyr)
+library ("ndtv")
+library(scatterplot3d)
 ```
 
+```{r}
+setwd("/Users/priankas/Desktop/Colab_Project/Integ475Project/networks")
+
+CC <- read.graph("net.graphml", format = "graphml")
+
+clust <- clusters(CC)
+CC <- induced.subgraph(CC, which(clust$membership == which.max(clust$csize)))
+summary(CC)
+```
+
+This part rendered the date into a dynamic network. We first created a static network with 25 vertices. By creating active edges, we were able to convert this static network to a dynamic one. To test the network, we viewed it time 1. We also added labels onto the network. Afterwards, using render.d3movie code, we made this dynamic network into a network movie. 
+
+We experimented with different illustrations of this dynamic network. Using filmstrip I was able to display the networks at different times all at once. Then, using the timePrism function, I graphed the dyanmic network with time on the y-axis. 
+```{r}
+
+CC <- network.initialize(10)
+
+add.edges.active(CC,tail=1:9,head=c(2:9,1),onset=1:9, terminus=11)
+add.edges.active(CC,tail=10,head=c(1:9),onset=10, terminus=12)
+
+class(CC)
+
+print(CC)
+
+as.data.frame(CC)
+
+CC
+
+plot(CC)
+
+plot(network.extract(CC,at=1))
+
+elabels<-lapply(get.edge.activity(CC),
+                function(spl){
+                  paste("(",spl[,1],"-",spl[,2],")",sep='')
+                })
+
+plot(CC,displaylabels=TRUE,edge.label=elabels,
+     edge.label.col='blue') 
+
+render.d3movie(CC, displaylabels=TRUE)
+
+filmstrip(CC,displaylabels=FALSE)
+
+compute.animation(CC)
+
+timePrism(CC,at=c(1,10,20),
+          displaylabels=TRUE,planes = TRUE,
+          label.cex=0.5)
+
+timeline(CC)
+
+```
+
+
+```{r}
+CC <- network.initialize(500)
+msmAt50<-network.extract(CC,at=50)
+network.size(msmAt50)
+plot(msmAt50,coord=network.layout.animate.MDSJ(msmAt50),vertex.cex=0.5)
+```
