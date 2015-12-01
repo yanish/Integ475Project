@@ -10,6 +10,8 @@ library(igraph)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
+library(network)
+library(ndtv)
 
 setwd("C:/Users/Mgnwylie/Documents/INTEG9/mini_project/Integ475Project")
 
@@ -35,6 +37,13 @@ density <- graph.density(network)
 -----------------------
 Plots
 -----------------------
+
+The plots below analyze the number of times an author has been cited and the number of citation authors used in their paper. To do this I narrowed down the data to six columns: Publication Names, Number of References, Total Citations, Priciple Author, and Publication Year. I first looked at the change in total citation counts over time. Citations are increasing, so it seems as though wetland research is expanding. Next I made a histogram of the number of references each author used. The authors tend to stay at around 25-75 citations per paper. 
+
+Next to find see the pattern between Number of References and Total Citations while accounting for the priciple authors. Many of the authors stay under 100 for both factors, therefore their was a large data cluster. However, there were a few dots with very large numbers, including some up to around 250 citations and references. 
+
+It appeared that Lawrence and Oxford has the highest projected increase, or most closely positive linear correlation. Therefore I isolated the data and mapped only Lawrence and Oxford.
+
 ```{r}
 
 dat <- read.csv("C:/Users/Mgnwylie/Documents/INTEG9/mini_project/Integ475Project/data/dat.csv")
@@ -70,7 +79,19 @@ ggplot(Wetlands2, aes(NR, TC, color=PI)) +
 ggplot(Wetlands2, aes(NR, count),count) +
   geom_bar(stat="bin", position = "identity") + theme_minimal()
 
+```
 
+---------------------------------
+Networks on Lawrence and Oxford
+---------------------------------
+Next I wanted to look at the networks of Oxford and Lawrence further, however I was unable to isolate just the nodes associated with each factor. Therefore the networks of Lawrence and Oxford on wetlands will forever remain a mystery. :(
 
+```{r}
+plot(network, vertex.label=NA, layout=layout.fruchterman.reingold)
 
+E(network)$PI
+
+netLawrence <- (E$PI)
+
+#didn't work :(
 ```
