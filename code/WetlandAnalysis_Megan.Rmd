@@ -1,0 +1,76 @@
+---
+title: "Hello"
+author: "Megan Wylie"
+date: "November 24, 2015"
+output: html_document
+---
+
+```{r}
+library(igraph)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+setwd("C:/Users/Mgnwylie/Documents/INTEG9/mini_project/Integ475Project")
+
+network <- read.graph("C:/Users/Mgnwylie/Documents/INTEG9/mini_project/Integ475Project/networks/net.graphml", format = "graphml")
+
+network <- simplify(network, remove.multiple = TRUE, remove.loops = TRUE)
+
+plot(network)
+
+plot(network, vertex.label=NA)
+
+network <- delete.edges(network, which(E(network)$weight <4)) 
+network <- delete.vertices(network, which(degree(network) <1))
+
+plot(network, vertex.label=NA)
+
+summary(network)
+
+density <- graph.density(network)
+```
+
+
+-----------------------
+Plots
+-----------------------
+```{r}
+
+dat <- read.csv("C:/Users/Mgnwylie/Documents/INTEG9/mini_project/Integ475Project/data/dat.csv")
+
+head(dat)
+View(dat)
+summary(dat)
+
+Wetlands <- select(dat, SO, NR, TC, PI, PY)
+
+ggplot(Wetlands, aes(PY)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+pdf(file = "C:/Users/Mgnwylie/documents/height_facet.pdf", width = 10)
+ggplot(Wetlands, aes(PY)) +
+  geom_bar(stat="bin") + theme_minimal() 
+dev.off()
+
+ggplot(Wetlands, aes(TC)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+ggplot(Wetlands, aes(NR)) +
+  geom_bar(stat="bin") + theme_minimal()
+
+ggplot(Wetlands, aes(NR, TC, color=PI)) +
+  geom_point(size = 3) + geom_smooth() + theme_minimal()
+
+Wetlands2<- filter(Wetlands, PI == "LAWRENCE"|PI == "OXFORD")
+
+ggplot(Wetlands2, aes(NR, TC, color=PI)) +
+  geom_point(size = 3) + geom_smooth() + theme_minimal()
+
+ggplot(Wetlands2, aes(NR, count),count) +
+  geom_bar(stat="bin", position = "identity") + theme_minimal()
+
+
+
+
+```
