@@ -9,4 +9,4 @@ Net = RC.coCiteNetwork()
 Dat = RC.writeCSV(fname = "data/dat.csv")
 
 Net=mk.drop_edges(Net, minWeight=3)
-Nx.write_graphml(Net, "networks/net.graphml2")
+Nx.write_graphml(Net, "networks/net.graphml")
